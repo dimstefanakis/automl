@@ -19,6 +19,7 @@ def get_fitness_posts():
     fitness_subreddit = reddit.subreddit('fitness')
     bodybuilding_subreddit = reddit.subreddit('bodybuilding')
     powerlifting_subreddit = reddit.subreddit('powerlifting')
+    bodyweightfitness_subreddit = reddit.subreddit('bodyweightfitness')
 
     with open('data.csv', 'w', encoding='UTF8') as f:
         # create the csv writer
@@ -26,14 +27,22 @@ def get_fitness_posts():
         fitness_submissions = set()
         bodybuilding_submissions = set()
         powerlifting_submissions = set()
-        for submission in fitness_subreddit.new(limit=200):
+        for submission in fitness_subreddit.new(limit=400):
             fitness_submissions.add(submission.selftext)
 
-        for submission in bodybuilding_subreddit.new(limit=200):
+        for submission in bodybuilding_subreddit.new(limit=1500):
             bodybuilding_submissions.add(submission.selftext)
 
-        for submission in powerlifting_subreddit.new(limit=200):
+        for submission in bodyweightfitness_subreddit.new(limit=500):
+            # fill bodybuilding submissions to reach 100 items
+            bodybuilding_submissions.add(submission.selftext)
+
+        for submission in powerlifting_subreddit.new(limit=1200):
             powerlifting_submissions.add(submission.selftext)
+
+        print(len(fitness_submissions))
+        print(len(bodybuilding_submissions))
+        print(len(powerlifting_submissions))
 
         for submission in fitness_submissions:
             if "Daily Simple Questions Thread" not in submission:
