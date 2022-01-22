@@ -120,14 +120,17 @@ def get_posts():
                               'category': subreddit['category'],
                               'praw': reddit.subreddit(sub['name'])})
 
-    with open('data.csv', 'w', encoding='UTF8') as f:
+    with open('smalldata.csv', 'w', encoding='UTF8') as f:
         # create the csv writer
         writer = csv.writer(f)
         results = []
         for sub in praw_subs:
             submissions = set()
             for submission in sub['praw'].new(limit=1500):
-                submissions.add(submission.selftext)
+                # watson needs each text to be max 2000 codepoints
+                # so we also leave 200 characters for safety reasons
+                if len(submission.selftext) < 1800:
+                    submissions.add(submission.selftext)
             results.append({
                 'sub': sub['sub'],
                 'category': sub['category'],
@@ -142,14 +145,13 @@ def get_posts():
         results = [result for result in results if len(result['submissions']) >= 100]
 
         for result in results:
-            for submission in result['submissions']:
+            for submission in list(result['submissions'])[:1500]:
                 keywords = [*result['sub']['keywords'], result['category']]
                 writer.writerow([submission, ','.join(keywords)])
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    #get_fitness_posts()
     get_posts()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
